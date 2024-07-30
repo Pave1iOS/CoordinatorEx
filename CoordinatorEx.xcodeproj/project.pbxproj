@@ -12,6 +12,7 @@
 		462419212C53D5CA0094FE26 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 462419202C53D5CA0094FE26 /* Assets.xcassets */; };
 		462419242C53D5CA0094FE26 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 462419232C53D5CA0094FE26 /* Preview Assets.xcassets */; };
 		4624192B2C53D7520094FE26 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4624192A2C53D7520094FE26 /* Coordinator.swift */; };
+		464D435B2C58E647005B2E90 /* NavigatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 464D435A2C58E647005B2E90 /* NavigatorView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +22,7 @@
 		462419202C53D5CA0094FE26 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		462419232C53D5CA0094FE26 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		4624192A2C53D7520094FE26 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
+		464D435A2C58E647005B2E90 /* NavigatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigatorView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +76,7 @@
 			isa = PBXGroup;
 			children = (
 				4624192A2C53D7520094FE26 /* Coordinator.swift */,
+				464D435A2C58E647005B2E90 /* NavigatorView.swift */,
 			);
 			path = Coordinator;
 			sourceTree = "<group>";
@@ -148,6 +151,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				464D435B2C58E647005B2E90 /* NavigatorView.swift in Sources */,
 				4624191F2C53D5B60094FE26 /* CoordinatorView.swift in Sources */,
 				4624191D2C53D5B60094FE26 /* CoordinatorExApp.swift in Sources */,
 				4624192B2C53D7520094FE26 /* Coordinator.swift in Sources */,

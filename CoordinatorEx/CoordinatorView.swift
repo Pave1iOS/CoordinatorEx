@@ -10,6 +10,7 @@ import SwiftUI
 struct CoordinatorView: View {
 	
 	var coordinator = Coordinator()
+	var navigatorView = NavigatorView()
 	
 	var body: some View {
 		ZStack {
@@ -20,20 +21,9 @@ struct CoordinatorView: View {
 	@ViewBuilder
 	func generate() -> some View {
 		List {
-			Button(action: {  }, label: { Text("RED") })
-			
-			Button(action: {
-				NavigationView {
-					NavigationLink("") {
-						
-						coordinator.redFlow(.sheet)
-					}
-					
-				}
-				
-			}, label: { Text("RED SHEET") })
-			
-			Button(action: {  }, label: { Text("RED COVER") })
+			Button(action: { navigatorView.send(.buttonTapped(.page, .red)) }, label: { Text("RED") })
+			Button(action: { navigatorView.send(.buttonTapped(.sheet, .red)) }, label: { Text("RED SHEET") })
+			Button(action: { navigatorView.send(.buttonTapped(.cover, .red)) }, label: { Text("RED COVER") })
 			
 			Button(action: {  }, label: { Text("GREEN") })
 			Button(action: {  }, label: { Text("GREEN SHEET") })
@@ -89,41 +79,3 @@ struct BlueScene: View {
 		}
 	}
 }
-
-//NavigationView {
-	//			VStack {
-	//				NavigationLink(destination: SheetView(), label: {
-	//					Button(action: {
-	//						showSheet.toggle()
-	//					}, label: {
-	//						Text("sheet")
-	//					})
-	//				}).sheet(isPresented: $showSheet, content: {
-	//					SheetView()
-	//				})
-	//
-	//				NavigationLink("fullScreen", destination: FullScreenView())
-	//					.fullScreenCover(isPresented: $showCover, content: {
-	//						FullScreenView()
-	//					})
-	//
-	//				Button(action: {
-	//					showAlert.toggle()
-	//				}, label: {
-	//					Text("show alert")
-	//				}).alert(isPresented: $showAlert) {
-	//					Alert(
-	//						title: Text("Заголовок"),
-	//						message: Text("Сообщение"),
-	//						primaryButton: .default(Text("Хорошо"), action: {
-	//							// Действие при нажатии на кнопку "Хорошо"
-	//						}),
-	//						secondaryButton: .cancel(Text("Отменить"), action: {
-	//							// Действие при нажатии на кнопку "Отменить"
-	//						})
-	//					)
-	//				}
-	//
-	//			}
-	//		}
-	//	}
