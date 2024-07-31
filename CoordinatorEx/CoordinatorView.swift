@@ -9,21 +9,34 @@ import SwiftUI
 
 struct CoordinatorView: View {
 	
-	var coordinator = Coordinator()
-	var navigatorView = NavigatorView()
+	var viewModel: ViewModel
+	
+	init(initType: CoordinatorInitType) {
+		self.viewModel = .init(initType: initType)
+	}
 	
 	var body: some View {
 		ZStack {
-			generate()
+			navigation()
 		}
 	}
 	
-	@ViewBuilder
-	func generate() -> some View {
+	func navigation() -> some View {
+		framing()
+			.navigator(viewModel: viewModel)
+	}
+	
+	func framing() -> some View {
+		Color.blue.opacity(0.5)
+			.overlay(content())
+	}
+	
+//	@ViewBuilder
+	func content() -> some View {
 		List {
-			Button(action: { navigatorView.send(.buttonTapped(.page, .red)) }, label: { Text("RED") })
-			Button(action: { navigatorView.send(.buttonTapped(.sheet, .red)) }, label: { Text("RED SHEET") })
-			Button(action: { navigatorView.send(.buttonTapped(.cover, .red)) }, label: { Text("RED COVER") })
+			Button(action: { viewModel.send(.buttonTapped(.page, .red)) }, label: { Text("RED") })
+			Button(action: { viewModel.send(.buttonTapped(.sheet, .red)) }, label: { Text("RED SHEET") })
+			Button(action: { viewModel.send(.buttonTapped(.cover, .red)) }, label: { Text("RED COVER") })
 			
 			Button(action: {  }, label: { Text("GREEN") })
 			Button(action: {  }, label: { Text("GREEN SHEET") })
@@ -38,7 +51,7 @@ struct CoordinatorView: View {
 }
 
 #Preview {
-	CoordinatorView()
+	CoordinatorView(initType: .root)
 }
 // MARK: - View для отображения
 struct RedScene: View {

@@ -8,13 +8,13 @@
 import SwiftUI
 
 protocol INavigatorView: ObservableObject {
-	var navigator: (any ICoordinator)? { get set }
+	var coordinator: (any ICoordinator)? { get set }
 	func send(_ action: ActionView)
 }
 
 extension INavigatorView {
 	func navigate(_ action: ActionType) {
-		guard let navigator else { return }
+		guard (coordinator != nil) else { return }
 		navigate(action)
 	}
 }
@@ -23,13 +23,14 @@ struct NavigatorView <ViewModel: INavigatorView>: ViewModifier {
 	var navigator: (any ICoordinator)?
 	
 	@ObservedObject private var viewModel: ViewModel
-	@StateObject private var coordinator = Coordinator()
+	@StateObject private var coordinator: Coordinator
 	
 	private let baseHeight: CGFloat = 40
 	private let imageHeight: CGFloat = 15
 	
 	init(viewModel: ViewModel) {
 		self.viewModel = viewModel
+		self.coordinator = .init(initType: viewModel.coordinatorInitType)
 	}
 	
 	func body(content: Content) -> some View {
@@ -42,11 +43,16 @@ struct NavigatorView <ViewModel: INavigatorView>: ViewModifier {
 		
 		switch coordinator.navigatorType {
 		case .root:
-			<#code#>
-		case .sheet(let sceneType):
-			<#code#>
+			embed(content: contentAdjust, withNavStack: true)
+		case .sheet(let secondary):
+			switch secondary {
+			case .page:
+				embed(content: contentAdjust, withNavStack: false)
+			case .cover, .sheet:
+				embed(content: contentAdjust, withNavStack: true)
+			}
 		case .tab:
-			<#code#>
+			embed(content: contentAdjust, withNavStack: false)
 		}
 	}
 	
@@ -75,9 +81,47 @@ struct NavigatorView <ViewModel: INavigatorView>: ViewModifier {
 					case .cover:
 						40
 					}
+					
+					addToolBar(content: content, height: height)
+						.navigationDestination(for: Scenes.self) { page in
+							coordinator.assembly(scene: .page(page))
+						}
 				case .tab:
-					<#code#>
+					Text("Error")
 				}
+			}
+			.sheet(item: $coordinator.sheet) { sheet in
+				coordinator.assembly(scene: .sheet(sheet))
+			}
+			.fullScreenCover(item: $coordinator.cover) { cover in
+				coordinator.assembly(scene: .cover(cover))
+			}
+		} else {
+			ZStack {
+				switch coordinator.navigatorType {
+				case .root:
+					Text("Error")
+				case .sheet(let secondary):
+					switch secondary {
+					case .page:
+						let height = if let rootType = coordinator.navigatorRoot, rootType == .sheet(.sheet) {
+							baseHeight
+						} else {
+							50.0
+						}
+						addToolBar(content: content, height: height)
+					case .sheet, .cover:
+						Text("Error")
+					}
+				case .tab:
+					content
+				}
+			}
+			.sheet(item: $coordinator.sheet) { sheet in
+				coordinator.assembly(scene: .sheet(sheet))
+			}
+			.fullScreenCover(item: $coordinator.cover) { cover in
+				coordinator.assembly(scene: .cover(cover))
 			}
 		}
 	}
@@ -101,14 +145,47 @@ struct NavigatorView <ViewModel: INavigatorView>: ViewModifier {
 							case .root, .tab:
 								return
 							case .sheet(let secondary):
-								<#code#>
+								switch secondary {
+								case .page:
+									coordinator.navigate(.down(.pop))
+								case .sheet, .cover:
+									coordinator.path.isEmpty
+									? coordinator.navigate(.down(.dismiss))
+									: coordinator.navigate(.down(.pop))
+								}
 							}
 						} label: {
+							let image = switch coordinator.navigatorType {
+								
+							case .root, .tab:
+								Image(systemName: "chevron.left")
+							case .sheet(let secondary):
+								switch secondary {
+								case .page:
+									Image(systemName: "chevron.left")
+								case .cover, .sheet:
+									coordinator.path.isEmpty
+									? Image(systemName: "xmark")
+									: Image(systemName: "chevron.left")
+								}
 							
+							}
+							image
+								.resizable()
+								.aspectRatio(contentMode: .fit)
+								.frame(width: imageHeight, height: imageHeight)
 						}
+						Spacer()
 					}
+					.padding(.horizontal, 15)
 				}
+				.frame(height: baseHeight)
 			}
+			.overlay(alignment: .bottom) {
+				Color(.gray)
+					.frame(height: 1)
+			}
+			.frame(height: height)
 	}
 
 	
@@ -156,5 +233,7 @@ struct NavigatorView <ViewModel: INavigatorView>: ViewModifier {
 }
 
 extension View {
-	
+	func navigator<ViewModel: ViewModelProtocol>(viewModel: ViewModel) -> some View {
+		self.modifier(NavigatorView(viewModel: viewModel))
+	}
 }

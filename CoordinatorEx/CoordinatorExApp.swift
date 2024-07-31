@@ -12,7 +12,7 @@ struct CoordinatorExApp: App {
 		
     var body: some Scene {
         WindowGroup {
-			CoordinatorView()
+			CoordinatorView(initType: .root)
         }
 		
     }

@@ -18,7 +18,7 @@ enum Scenes: String, Identifiable {
 }
 
 /// Тип навигации
-enum NavigatorType {
+enum NavigatorType: Equatable {
 	
 	enum SceneType {
 		case page
@@ -73,6 +73,12 @@ enum ActionViewType {
 	case view(ActionView)
 }
 
+enum CoordinatorInitType {
+	case root
+	case tab(root: any ICoordinator)
+	case sheet(navigationAction: ActionType.SceneType, root: any ICoordinator)
+}
+
 // MARK: - ICoordinator
 protocol ICoordinator: ObservableObject {
 	associatedtype SomeView: View
@@ -82,12 +88,36 @@ protocol ICoordinator: ObservableObject {
 	var cover: Scenes? { get set }
 	var sheet: Scenes? { get set }
 	var navigatorType: NavigatorType { get set }
+	var navigationRootStackType: NavigatorType? { get set }
 	
 	func navigate(_ action: ActionType)
 	func assembly(scene type: ActionType.SceneType) -> SomeView
 }
 
 extension ICoordinator {
+	func initialise(type: CoordinatorInitType) {
+		switch type {
+		case .root:
+			navigatorType = .root
+		case .tab(let root):
+			navigatorType = .tab
+			self.root = root
+		case .sheet(let navigationAction, let root):
+			switch navigationAction {
+			case .page:
+				navigatorType = .sheet(.page)
+				guard let root = root.navigationRootStackType else {
+					return navigationRootStackType = root.navigatorType
+				}
+				navigationRootStackType = root
+			case .cover:
+				navigatorType = .sheet(.cover)
+			case .sheet:
+				navigatorType = .sheet(.sheet)
+			}
+		}
+	}
+	
 	func navigate(_ action: ActionType) {
 		switch action {
 		case .up(let sceneType): // создание новой сцены
@@ -144,45 +174,15 @@ final class Coordinator: ICoordinator {
 	@Published var path = NavigationPath()
 	var root: (any ICoordinator)?
 	var navigatorType: NavigatorType = .root
+	var navigatorRoot: NavigatorType?
+	var navigationRootStackType: NavigatorType?
+	
 	
 	@State var cover: Scenes?
 	@State var sheet: Scenes?
-
-	/// Отработка нажатия
-	func send(_ action: ActionView) {
-		switch action {
-			
-		case .buttonTapped(let scene, let color):
-			switch scene {
-			case .page:
-				switch color {
-				case .red:
-					navigate(.up(.page(.red)))
-				case .green:
-					navigate(.up(.page(.green)))
-				case .blue:
-					navigate(.up(.page(.blue)))
-				}
-			case .sheet:
-				switch color {
-				case .red:
-					navigate(.up(.sheet(.red)))
-				case .green:
-					navigate(.up(.sheet(.green)))
-				case .blue:
-					navigate(.up(.sheet(.blue)))
-				}
-			case .cover:
-				switch color {
-				case .red:
-					navigate(.up(.cover(.red)))
-				case .green:
-					navigate(.up(.cover(.green)))
-				case .blue:
-					navigate(.up(.cover(.blue)))
-				}
-			}
-		}
+	
+	init(initType: CoordinatorInitType) {
+		initialise(type: initType)
 	}
 	
 	/// Сборка модуля с экранами
